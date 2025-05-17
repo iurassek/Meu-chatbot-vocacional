@@ -1,0 +1,164 @@
+# Importaria bibliotecas para a API do LLM, e talvez para uma interface simples se fosse o caso.
+# Exemplo: from openai import OpenAI
+# client = OpenAI(api_key="SUA_CHAVE_API")
+
+class ChatbotVocacionalGenerativo:
+    def __init__(self):
+        self.historico_conversa = []
+        self.perfil_usuario = {
+            "nome": None,
+            "interesses": [],
+            "habilidades": [],
+            "valores": [],
+            "desinteresses": [],
+            "preferencias_ambiente": []
+        }
+        self.estado_conversa = "INICIO" # Controla o fluxo da conversa
+
+    def _adicionar_ao_historico(self, papel, mensagem):
+        self.historico_conversa.append({"role": papel, "content": mensagem})
+
+    def _chamar_ia_generativa(self, prompt_principal, instrucoes_sistema=None):
+        """
+        Função simulada para chamar a IA Generativa.
+        Em um cenário real, aqui ocorreria a chamada à API do LLM.
+        """
+        mensagens_para_api = []
+        if instrucoes_sistema:
+            mensagens_para_api.append({"role": "system", "content": instrucoes_sistema})
+
+        # Adiciona o histórico relevante para dar contexto à IA
+        # Pode-se otimizar para não enviar sempre o histórico completo
+        mensagens_para_api.extend(self.historico_conversa[-5:]) # Ex: últimos 5 turnos
+        mensagens_para_api.append({"role": "user", "content": prompt_principal})
+
+        print(f"DEBUG: Enviando para IA: {mensagens_para_api}") # Para depuração
+
+        # --- Simulação da chamada e resposta da API ---
+        # response = client.chat.completions.create(
+        # model="gpt-3.5-turbo", # ou outro modelo como "gemini-pro"
+        # messages=mensagens_para_api,
+        # temperature=0.7 # Controla a criatividade
+        # )
+        # resposta_ia = response.choices[0].message.content.strip()
+        # --- Fim da Simulação ---
+
+        # Resposta mockada para este exemplo conceitual
+        if "sugira carreiras" in prompt_principal.lower():
+            resposta_ia = (
+                "Com base no que você me contou sobre seus interesses em "
+                f"{self.perfil_usuario.get('interesses', ['algo criativo'])[0]} e suas habilidades em "
+                f"{self.perfil_usuario.get('habilidades', ['resolver problemas'])[0]}, "
+                "sugiro explorar áreas como:\n"
+                "1. **Design Gráfico/UX:** Permite usar a criatividade para criar soluções visuais e experiências de usuário impactantes.\n"
+                "2. **Desenvolvimento de Software com Foco em Frontend:** Combina lógica com a criação de interfaces interativas, o que pode ser muito gratificante.\n"
+                "3. **Marketing Digital e Criação de Conteúdo:** Se você gosta de se comunicar e tem ideias inovadoras, pode ser uma ótima opção.\n"
+                "Alguma dessas áreas te chama a atenção? Ou gostaria de explorar outras possibilidades?"
+            )
+        elif "detalhes sobre" in prompt_principal.lower():
+            carreira = prompt_principal.split("detalhes sobre")[-1].strip().replace("?","")
+            resposta_ia = (
+                f"Claro! Sobre **{carreira}**:\n"
+                f"- **O que faz:** [IA geraria uma descrição concisa das atividades principais de um {carreira}]\n"
+                f"- **Habilidades importantes:** [IA listaria habilidades relevantes para {carreira}]\n"
+                f"- **Por que pode combinar com você:** [IA conectaria com os dados do self.perfil_usuario]\n"
+                "Quer saber mais ou explorar outra área?"
+            )
+        elif self.estado_conversa == "COLETA_NOME":
+            resposta_ia = f"Olá! Sou seu assistente virtual para exploração vocacional. Meu objetivo é te ajudar a refletir sobre seus interesses e habilidades para descobrirmos juntos alguns caminhos de carreira. Para começar, como posso te chamar?"
+        elif self.estado_conversa == "COLETA_INTERESSES":
+             resposta_ia = f"Prazer em conhecer, {self.perfil_usuario['nome']}! 😊 Para que eu possa te ajudar melhor, me conte: o que você realmente gosta de fazer no seu tempo livre? Quais atividades te trazem alegria ou te deixam engajado(a)?"
+        # ... outras respostas mockadas para diferentes estágios
+        else:
+            resposta_ia = "Entendi. Poderia me falar um pouco mais sobre isso?"
+
+
+        self._adicionar_ao_historico("assistant", resposta_ia)
+        return resposta_ia
+
+    def iniciar_conversa(self):
+        self.estado_conversa = "COLETA_NOME"
+        instrucao_sistema = (
+            "Você é um chatbot amigável e especialista em orientação vocacional. "
+            "Seu objetivo é ajudar o usuário a explorar seus interesses, habilidades e valores para sugerir possíveis carreiras. "
+            "Faça perguntas de forma conversacional e adapte-se às respostas do usuário. Use emojis para tornar a conversa mais leve."
+        )
+        # A primeira mensagem pode ser pré-definida ou gerada
+        primeira_mensagem = self._chamar_ia_generativa(
+            "Inicie a conversa de boas-vindas e pergunte o nome do usuário.",
+            instrucoes_sistema=instrucao_sistema
+        )
+        return primeira_mensagem
+
+    def processar_entrada_usuario(self, entrada_usuario):
+        self._adicionar_ao_historico("user", entrada_usuario)
+        prompt_para_ia = ""
+
+        if self.estado_conversa == "COLETA_NOME":
+            # A IA poderia extrair o nome, mas para simplificar:
+            self.perfil_usuario["nome"] = entrada_usuario.strip()
+            self.estado_conversa = "COLETA_INTERESSES"
+            prompt_para_ia = f"O usuário se chama {self.perfil_usuario['nome']}. Agora, pergunte sobre seus interesses e hobbies de forma engajadora."
+
+        elif self.estado_conversa == "COLETA_INTERESSES":
+            # A IA Generativa analisa a resposta para extrair interesses
+            # e os armazena em self.perfil_usuario["interesses"]
+            # Ex: self.perfil_usuario["interesses"] = extrair_info_com_ia(entrada_usuario, "interesses")
+            self.perfil_usuario["interesses"].append(entrada_usuario) # Simplificado
+            self.estado_conversa = "COLETA_HABILIDADES"
+            prompt_para_ia = "O usuário mencionou seus interesses. Agora, pergunte sobre suas habilidades e no que ele se considera bom."
+
+        elif self.estado_conversa == "COLETA_HABILIDADES":
+            self.perfil_usuario["habilidades"].append(entrada_usuario) # Simplificado
+            self.estado_conversa = "COLETA_VALORES"
+            prompt_para_ia = "O usuário falou sobre habilidades. Agora, investigue quais são seus valores importantes em uma carreira (ex: estabilidade, impacto social, criatividade, liderança)."
+
+        elif self.estado_conversa == "COLETA_VALORES":
+            self.perfil_usuario["valores"].append(entrada_usuario) # Simplificado
+            # Poderia continuar com desinteresses, ambiente de trabalho, etc.
+            self.estado_conversa = "GERAR_SUGESTOES"
+            prompt_para_ia = (
+                f"Com base no perfil do usuário: Interesses: {self.perfil_usuario['interesses']}, "
+                f"Habilidades: {self.perfil_usuario['habilidades']}, Valores: {self.perfil_usuario['valores']}. "
+                "Sugira 3 a 5 carreiras ou áreas de estudo que pareçam adequadas, explicando brevemente o porquê de cada uma. "
+                "Use um tom encorajador e personalizado."
+            )
+
+        elif self.estado_conversa == "GERAR_SUGESTOES" or self.estado_conversa == "FEEDBACK_SUGESTOES":
+            self.estado_conversa = "FEEDBACK_SUGESTOES"
+            if "detalhes sobre" in entrada_usuario.lower() or "mais sobre" in entrada_usuario.lower():
+                # A IA geraria detalhes sobre a carreira mencionada
+                prompt_para_ia = f"O usuário pediu mais detalhes sobre uma das sugestões: '{entrada_usuario}'. Forneça informações relevantes sobre essa carreira, como o que faz, habilidades necessárias e por que pode ser uma boa opção para este usuário."
+            elif "não gostei" in entrada_usuario.lower() or "outra" in entrada_usuario.lower():
+                prompt_para_ia = "O usuário não se identificou totalmente com as sugestões. Ofereça-se para refinar a busca ou explore um ângulo diferente com base no feedback dele. Talvez pergunte o que especificamente não agradou."
+            elif "gostei de" in entrada_usuario.lower():
+                prompt_para_ia = f"O usuário demonstrou interesse em uma sugestão: '{entrada_usuario}'. Parabenize-o pela clareza e pergunte se ele gostaria de focar a exploração nessa área ou ainda ver outras opções."
+            elif entrada_usuario.lower() in ["fim", "obrigado", "sair"]:
+                self.estado_conversa = "FIM"
+                return f"De nada, {self.perfil_usuario.get('nome', 'pessoa usuária')}! Fico feliz em ajudar na sua jornada de exploração vocacional. Lembre-se que este é um ponto de partida. Continue pesquisando, converse com profissionais e confie nos seus interesses. Boa sorte! 🚀"
+            else:
+                prompt_para_ia = f"O usuário respondeu às sugestões com: '{entrada_usuario}'. Analise o sentimento e a intenção dele e continue a conversa de forma útil, seja oferecendo mais detalhes, novas sugestões ou pedindo mais informações para refinar."
+
+        else:
+            prompt_para_ia = "Continue a conversa de forma natural e útil, guiando o usuário na exploração vocacional."
+
+        resposta_chatbot = self._chamar_ia_generativa(prompt_para_ia)
+        return resposta_chatbot
+
+# Simulação de uso no terminal
+if __name__ == "__main__":
+    print("Iniciando Chatbot Vocacional Generativo (Simulação)\n")
+    chatbot = ChatbotVocacionalGenerativo()
+    print(f"🤖 CHATBOT: {chatbot.iniciar_conversa()}")
+
+    while chatbot.estado_conversa != "FIM":
+        entrada = input("🙂 VOCÊ: ")
+        if not entrada:
+            continue
+        resposta = chatbot.processar_entrada_usuario(entrada)
+        print(f"🤖 CHATBOT: {resposta}")
+
+    print("\n--- Fim da Simulação ---")
+    print("\nPerfil do Usuário Coletado (Simplificado):")
+    import json
+    print(json.dumps(chatbot.perfil_usuario, indent=2, ensure_ascii=False))
