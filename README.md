@@ -2,11 +2,12 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/iurassek/Meu-chatbot-vocacional?style=social)](https://github.com/iurassek/Meu-chatbot-vocacional/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/iurassek/Meu-chatbot-vocacional?style=social)](https://github.com/iurassek/Meu-chatbot-vocacional/network/members)
-[![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](https://opensource.org/licenses/MIT) **Descubra seus talentos, explore suas paixões e encontre o caminho profissional que mais combina com você!**
+
+**Descubra seus talentos, explore suas paixões e encontre o caminho profissional que mais combina com você!**
 
 Este projeto apresenta um Chatbot Vocacional Inteligente, desenvolvido para auxiliar pessoas de todas as idades na jornada de autoconhecimento e exploração de carreiras. Utilizando uma abordagem conversacional e interativa, nosso chatbot guia você através de uma série de perguntas reflexivas sobre seus interesses, habilidades e valores, culminando em sugestões de áreas e profissões personalizadas.
 
-[Chatbot Online - GitHub Pages](https://iurassek.github.io/Meu-chatbot-vocacional/chatbot_vocacional.html)  ---
+[Chatbot Online](https://iurassek.github.io/Meu-chatbot-vocacional/index.html)  ---
 
 ## 🤔 Por que um Chatbot Vocacional?
 
@@ -43,7 +44,7 @@ Este chatbot foi criado para:
 É muito simples!
 
 1.  **Acesse o Chatbot:** Clique no link abaixo para abrir o chatbot diretamente no seu navegador:
-    * [**Experimente o Chatbot Vocacional Agora!**](https://iurassek.github.io/Meu-chatbot-vocacional/chatbot_vocacional.html) 2.  **Inicie a Conversa:** Siga as instruções do chatbot e responda às perguntas da forma mais sincera possível.
+    * [**Experimente o Chatbot Vocacional Agora!**](https://iurassek.github.io/Meu-chatbot-vocacional/index.html) 2.  **Inicie a Conversa:** Siga as instruções do chatbot e responda às perguntas da forma mais sincera possível.
 3.  **Explore as Sugestões:** Ao final, o chatbot apresentará algumas sugestões de carreira. Use-as como ponto de partida para suas próprias pesquisas!
 
 Não é necessário instalar nada!
