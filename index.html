@@ -1,164 +1,348 @@
-# Importaria bibliotecas para a API do LLM, e talvez para uma interface simples se fosse o caso.
-# Exemplo: from openai import OpenAI
-# client = OpenAI(api_key="SUA_CHAVE_API")
-
-class ChatbotVocacionalGenerativo:
-    def __init__(self):
-        self.historico_conversa = []
-        self.perfil_usuario = {
-            "nome": None,
-            "interesses": [],
-            "habilidades": [],
-            "valores": [],
-            "desinteresses": [],
-            "preferencias_ambiente": []
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot Vocacional Inteligente</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Azul acinzentado claro */
         }
-        self.estado_conversa = "INICIO" # Controla o fluxo da conversa
+        #chat-container {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease-in-out;
+        }
+        .chat-message {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards;
+        }
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .user-message {
+            background-color: #3b82f6; /* Azul vibrante */
+            color: white;
+        }
+        .bot-message {
+            background-color: #ffffff; /* Branco */
+            color: #1f2937; /* Cinza escuro */
+            border: 1px solid #e5e7eb; /* Cinza claro para borda */
+        }
+        .quick-reply-button {
+            transition: background-color 0.2s ease-in-out, transform 0.1s ease-in-out;
+        }
+        .quick-reply-button:hover {
+            background-color: #2563eb; /* Azul um pouco mais escuro no hover */
+            transform: translateY(-2px);
+        }
+        .quick-reply-button:active {
+            transform: translateY(-1px);
+        }
+        /* Estilo para a barra de rolagem */
+        #chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        #chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        #chat-messages::-webkit-scrollbar-thumb {
+            background: #cbd5e1; /* Cinza médio */
+            border-radius: 10px;
+        }
+        #chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8; /* Cinza mais escuro no hover */
+        }
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background-color: #94a3b8;
+            border-radius: 50%;
+            display: inline-block;
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1.0); }
+        }
+    </style>
+</head>
+<body class="flex flex-col items-center justify-center min-h-screen p-4">
+    <div id="chat-container" class="w-full max-w-2xl bg-white rounded-xl overflow-hidden flex flex-col h-[90vh] md:h-[80vh]">
+        <header class="bg-gradient-to-r from-blue-600 to-indigo-700 p-4 sm:p-6 text-white shadow-md">
+            <h1 class="text-xl sm:text-2xl font-bold text-center">🚀 Seu Guia Vocacional Inteligente 🚀</h1>
+            <p class="text-xs sm:text-sm text-center text-blue-100 mt-1">Descubra seus talentos e paixões com a ajuda da IA!</p>
+        </header>
 
-    def _adicionar_ao_historico(self, papel, mensagem):
-        self.historico_conversa.append({"role": papel, "content": mensagem})
+        <div id="chat-messages" class="flex-1 p-4 sm:p-6 space-y-4 overflow-y-auto">
+            </div>
 
-    def _chamar_ia_generativa(self, prompt_principal, instrucoes_sistema=None):
-        """
-        Função simulada para chamar a IA Generativa.
-        Em um cenário real, aqui ocorreria a chamada à API do LLM.
-        """
-        mensagens_para_api = []
-        if instrucoes_sistema:
-            mensagens_para_api.append({"role": "system", "content": instrucoes_sistema})
+        <div id="quick-replies-container" class="p-2 sm:p-3 border-t border-gray-200 flex flex-wrap justify-center gap-2">
+            </div>
 
-        # Adiciona o histórico relevante para dar contexto à IA
-        # Pode-se otimizar para não enviar sempre o histórico completo
-        mensagens_para_api.extend(self.historico_conversa[-5:]) # Ex: últimos 5 turnos
-        mensagens_para_api.append({"role": "user", "content": prompt_principal})
+        <div id="typing-indicator-container" class="p-3 border-t border-gray-200 hidden">
+            <div class="flex items-center space-x-2">
+                <div class="bot-message py-2 px-3 rounded-lg max-w-xs lg:max-w-md">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-        print(f"DEBUG: Enviando para IA: {mensagens_para_api}") # Para depuração
+        <div class="p-3 sm:p-4 border-t border-gray-200 bg-gray-50">
+            <div class="flex items-center space-x-2 sm:space-x-3">
+                <input type="text" id="user-input" placeholder="Digite sua mensagem..." class="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-shadow">
+                <button id="send-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 sm:px-6 rounded-lg shadow-md hover:shadow-lg transition-all transform hover:scale-105">
+                    Enviar
+                </button>
+            </div>
+        </div>
+    </div>
 
-        # --- Simulação da chamada e resposta da API ---
-        # response = client.chat.completions.create(
-        # model="gpt-3.5-turbo", # ou outro modelo como "gemini-pro"
-        # messages=mensagens_para_api,
-        # temperature=0.7 # Controla a criatividade
-        # )
-        # resposta_ia = response.choices[0].message.content.strip()
-        # --- Fim da Simulação ---
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+        const quickRepliesContainer = document.getElementById('quick-replies-container');
+        const typingIndicatorContainer = document.getElementById('typing-indicator-container');
 
-        # Resposta mockada para este exemplo conceitual
-        if "sugira carreiras" in prompt_principal.lower():
-            resposta_ia = (
-                "Com base no que você me contou sobre seus interesses em "
-                f"{self.perfil_usuario.get('interesses', ['algo criativo'])[0]} e suas habilidades em "
-                f"{self.perfil_usuario.get('habilidades', ['resolver problemas'])[0]}, "
-                "sugiro explorar áreas como:\n"
-                "1. **Design Gráfico/UX:** Permite usar a criatividade para criar soluções visuais e experiências de usuário impactantes.\n"
-                "2. **Desenvolvimento de Software com Foco em Frontend:** Combina lógica com a criação de interfaces interativas, o que pode ser muito gratificante.\n"
-                "3. **Marketing Digital e Criação de Conteúdo:** Se você gosta de se comunicar e tem ideias inovadoras, pode ser uma ótima opção.\n"
-                "Alguma dessas áreas te chama a atenção? Ou gostaria de explorar outras possibilidades?"
-            )
-        elif "detalhes sobre" in prompt_principal.lower():
-            carreira = prompt_principal.split("detalhes sobre")[-1].strip().replace("?","")
-            resposta_ia = (
-                f"Claro! Sobre **{carreira}**:\n"
-                f"- **O que faz:** [IA geraria uma descrição concisa das atividades principais de um {carreira}]\n"
-                f"- **Habilidades importantes:** [IA listaria habilidades relevantes para {carreira}]\n"
-                f"- **Por que pode combinar com você:** [IA conectaria com os dados do self.perfil_usuario]\n"
-                "Quer saber mais ou explorar outra área?"
-            )
-        elif self.estado_conversa == "COLETA_NOME":
-            resposta_ia = f"Olá! Sou seu assistente virtual para exploração vocacional. Meu objetivo é te ajudar a refletir sobre seus interesses e habilidades para descobrirmos juntos alguns caminhos de carreira. Para começar, como posso te chamar?"
-        elif self.estado_conversa == "COLETA_INTERESSES":
-             resposta_ia = f"Prazer em conhecer, {self.perfil_usuario['nome']}! 😊 Para que eu possa te ajudar melhor, me conte: o que você realmente gosta de fazer no seu tempo livre? Quais atividades te trazem alegria ou te deixam engajado(a)?"
-        # ... outras respostas mockadas para diferentes estágios
-        else:
-            resposta_ia = "Entendi. Poderia me falar um pouco mais sobre isso?"
+        let conversationState = 'WELCOME';
+        let userName = '';
+        let userProfile = {
+            interests: [],
+            skills: [],
+            values: [],
+            dislikes: []
+        };
 
+        // Função para adicionar mensagem ao chat
+        function addMessage(sender, message, isHTML = false) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('chat-message', 'max-w-lg', 'p-3', 'rounded-xl', 'mb-2');
+            
+            if (sender === 'user') {
+                messageElement.classList.add('user-message', 'ml-auto', 'rounded-br-none');
+            } else {
+                messageElement.classList.add('bot-message', 'mr-auto', 'rounded-bl-none');
+            }
 
-        self._adicionar_ao_historico("assistant", resposta_ia)
-        return resposta_ia
+            if (isHTML) {
+                messageElement.innerHTML = message;
+            } else {
+                messageElement.textContent = message;
+            }
+            
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight; // Auto-scroll
+        }
 
-    def iniciar_conversa(self):
-        self.estado_conversa = "COLETA_NOME"
-        instrucao_sistema = (
-            "Você é um chatbot amigável e especialista em orientação vocacional. "
-            "Seu objetivo é ajudar o usuário a explorar seus interesses, habilidades e valores para sugerir possíveis carreiras. "
-            "Faça perguntas de forma conversacional e adapte-se às respostas do usuário. Use emojis para tornar a conversa mais leve."
-        )
-        # A primeira mensagem pode ser pré-definida ou gerada
-        primeira_mensagem = self._chamar_ia_generativa(
-            "Inicie a conversa de boas-vindas e pergunte o nome do usuário.",
-            instrucoes_sistema=instrucao_sistema
-        )
-        return primeira_mensagem
+        // Função para mostrar/ocultar indicador de "digitando"
+        function showTypingIndicator(show) {
+            typingIndicatorContainer.style.display = show ? 'block' : 'none';
+            if (show) chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
 
-    def processar_entrada_usuario(self, entrada_usuario):
-        self._adicionar_ao_historico("user", entrada_usuario)
-        prompt_para_ia = ""
+        // Função para simular a resposta da IA Generativa
+        async function getAIResponse(userMessage = "") {
+            showTypingIndicator(true);
+            clearQuickReplies();
+            userInput.disabled = true;
+            sendButton.disabled = true;
 
-        if self.estado_conversa == "COLETA_NOME":
-            # A IA poderia extrair o nome, mas para simplificar:
-            self.perfil_usuario["nome"] = entrada_usuario.strip()
-            self.estado_conversa = "COLETA_INTERESSES"
-            prompt_para_ia = f"O usuário se chama {self.perfil_usuario['nome']}. Agora, pergunte sobre seus interesses e hobbies de forma engajadora."
+            // Simula um pequeno atraso, como se a IA estivesse processando
+            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
 
-        elif self.estado_conversa == "COLETA_INTERESSES":
-            # A IA Generativa analisa a resposta para extrair interesses
-            # e os armazena em self.perfil_usuario["interesses"]
-            # Ex: self.perfil_usuario["interesses"] = extrair_info_com_ia(entrada_usuario, "interesses")
-            self.perfil_usuario["interesses"].append(entrada_usuario) # Simplificado
-            self.estado_conversa = "COLETA_HABILIDADES"
-            prompt_para_ia = "O usuário mencionou seus interesses. Agora, pergunte sobre suas habilidades e no que ele se considera bom."
+            let botResponse = "";
+            let quickReplies = [];
 
-        elif self.estado_conversa == "COLETA_HABILIDADES":
-            self.perfil_usuario["habilidades"].append(entrada_usuario) # Simplificado
-            self.estado_conversa = "COLETA_VALORES"
-            prompt_para_ia = "O usuário falou sobre habilidades. Agora, investigue quais são seus valores importantes em uma carreira (ex: estabilidade, impacto social, criatividade, liderança)."
+            // =======================================================================
+            // AQUI SERIA A CHAMADA PARA UM MODELO DE IA GENERATIVA REAL
+            // Exemplo:
+            // const payload = {
+            //   prompt: userMessage,
+            //   conversationHistory: /* histórico da conversa */,
+            //   userProfile: userProfile,
+            //   currentState: conversationState
+            // };
+            // const responseFromAI = await fetch('/api/generate-vocational-response', {
+            //   method: 'POST',
+            //   body: JSON.stringify(payload),
+            //   headers: { 'Content-Type': 'application/json' }
+            // });
+            // const data = await responseFromAI.json();
+            // botResponse = data.text;
+            // quickReplies = data.quickReplies || [];
+            // conversationState = data.nextState || conversationState;
+            // if (data.updatedProfile) userProfile = data.updatedProfile;
+            // =======================================================================
 
-        elif self.estado_conversa == "COLETA_VALORES":
-            self.perfil_usuario["valores"].append(entrada_usuario) # Simplificado
-            # Poderia continuar com desinteresses, ambiente de trabalho, etc.
-            self.estado_conversa = "GERAR_SUGESTOES"
-            prompt_para_ia = (
-                f"Com base no perfil do usuário: Interesses: {self.perfil_usuario['interesses']}, "
-                f"Habilidades: {self.perfil_usuario['habilidades']}, Valores: {self.perfil_usuario['valores']}. "
-                "Sugira 3 a 5 carreiras ou áreas de estudo que pareçam adequadas, explicando brevemente o porquê de cada uma. "
-                "Use um tom encorajador e personalizado."
-            )
+            // Lógica simulada do chatbot:
+            switch (conversationState) {
+                case 'WELCOME':
+                    botResponse = "Olá! Sou seu assistente vocacional inteligente. 😊 Estou aqui para te ajudar a explorar seus interesses, habilidades e valores para descobrirmos juntos alguns caminhos de carreira promissores. Para começarmos, como você gostaria de ser chamado(a)?";
+                    conversationState = 'GET_NAME';
+                    break;
 
-        elif self.estado_conversa == "GERAR_SUGESTOES" or self.estado_conversa == "FEEDBACK_SUGESTOES":
-            self.estado_conversa = "FEEDBACK_SUGESTOES"
-            if "detalhes sobre" in entrada_usuario.lower() or "mais sobre" in entrada_usuario.lower():
-                # A IA geraria detalhes sobre a carreira mencionada
-                prompt_para_ia = f"O usuário pediu mais detalhes sobre uma das sugestões: '{entrada_usuario}'. Forneça informações relevantes sobre essa carreira, como o que faz, habilidades necessárias e por que pode ser uma boa opção para este usuário."
-            elif "não gostei" in entrada_usuario.lower() or "outra" in entrada_usuario.lower():
-                prompt_para_ia = "O usuário não se identificou totalmente com as sugestões. Ofereça-se para refinar a busca ou explore um ângulo diferente com base no feedback dele. Talvez pergunte o que especificamente não agradou."
-            elif "gostei de" in entrada_usuario.lower():
-                prompt_para_ia = f"O usuário demonstrou interesse em uma sugestão: '{entrada_usuario}'. Parabenize-o pela clareza e pergunte se ele gostaria de focar a exploração nessa área ou ainda ver outras opções."
-            elif entrada_usuario.lower() in ["fim", "obrigado", "sair"]:
-                self.estado_conversa = "FIM"
-                return f"De nada, {self.perfil_usuario.get('nome', 'pessoa usuária')}! Fico feliz em ajudar na sua jornada de exploração vocacional. Lembre-se que este é um ponto de partida. Continue pesquisando, converse com profissionais e confie nos seus interesses. Boa sorte! 🚀"
-            else:
-                prompt_para_ia = f"O usuário respondeu às sugestões com: '{entrada_usuario}'. Analise o sentimento e a intenção dele e continue a conversa de forma útil, seja oferecendo mais detalhes, novas sugestões ou pedindo mais informações para refinar."
+                case 'GET_NAME':
+                    userName = userMessage.trim() || "Amigo(a)";
+                    botResponse = `Prazer em te conhecer, ${userName}! Para que eu possa te ajudar melhor, me conte um pouco sobre seus interesses e hobbies. O que você realmente gosta de fazer no seu tempo livre ou o que te deixa curioso(a)?`;
+                    conversationState = 'GET_INTERESTS';
+                    quickReplies = ["Ler livros", "Jogar videogames", "Praticar esportes", "Desenhar/Pintar", "Assistir filmes/séries", "Cozinhar", "Música (ouvir/tocar)", "Tecnologia"];
+                    break;
 
-        else:
-            prompt_para_ia = "Continue a conversa de forma natural e útil, guiando o usuário na exploração vocacional."
+                case 'GET_INTERESTS':
+                    if (userMessage) userProfile.interests.push(userMessage);
+                    botResponse = `Interessante! E quais são suas principais habilidades ou talentos? Coisas que você faz bem ou aprende com facilidade. Pode ser qualquer coisa, desde resolver problemas complexos até se comunicar bem com as pessoas.`;
+                    conversationState = 'GET_SKILLS';
+                    quickReplies = ["Resolução de problemas", "Criatividade", "Comunicação", "Liderança", "Organização", "Trabalho em equipe", "Habilidade com números", "Empatia"];
+                    break;
 
-        resposta_chatbot = self._chamar_ia_generativa(prompt_para_ia)
-        return resposta_chatbot
+                case 'GET_SKILLS':
+                    if (userMessage) userProfile.skills.push(userMessage);
+                    botResponse = `Entendido! Agora, pensando no seu futuro profissional, o que é mais importante para você em um trabalho ou carreira? Quais valores você busca? (Ex: estabilidade, impacto social, criatividade, liderança, aprendizado contínuo, bom salário, etc.)`;
+                    conversationState = 'GET_VALUES';
+                    quickReplies = ["Estabilidade financeira", "Impacto social positivo", "Liberdade criativa", "Oportunidades de liderança", "Aprendizado constante", "Equilíbrio vida/trabalho"];
+                    break;
 
-# Simulação de uso no terminal
-if __name__ == "__main__":
-    print("Iniciando Chatbot Vocacional Generativo (Simulação)\n")
-    chatbot = ChatbotVocacionalGenerativo()
-    print(f"🤖 CHATBOT: {chatbot.iniciar_conversa()}")
+                case 'GET_VALUES':
+                    if (userMessage) userProfile.values.push(userMessage);
+                    botResponse = `Ótimo! E para finalizarmos essa coleta de informações, existe alguma área de estudo, tipo de trabalho ou atividade que você definitivamente NÃO gosta ou não tem interesse? Isso me ajuda a refinar as sugestões.`;
+                    conversationState = 'GET_DISLIKES';
+                    quickReplies = ["Trabalho muito repetitivo", "Falar em público", "Matemática avançada", "Trabalhar sozinho(a)", "Rotina muito rígida"];
+                    break;
+                
+                case 'GET_DISLIKES':
+                    if (userMessage) userProfile.dislikes.push(userMessage);
+                    botResponse = `Perfeito, ${userName}! Coletei informações valiosas. Agora vou processar tudo isso para te dar algumas sugestões de áreas e carreiras que podem combinar com seu perfil. Só um momento... 🧠`;
+                    conversationState = 'PROVIDE_SUGGESTIONS';
+                    // Simula um processamento mais longo para as sugestões
+                    await new Promise(resolve => setTimeout(resolve, 1500)); 
+                    // Chama getAIResponse novamente para entrar no case PROVIDE_SUGGESTIONS
+                    return getAIResponse(); // Retorna a promessa para encadear corretamente
 
-    while chatbot.estado_conversa != "FIM":
-        entrada = input("🙂 VOCÊ: ")
-        if not entrada:
-            continue
-        resposta = chatbot.processar_entrada_usuario(entrada)
-        print(f"🤖 CHATBOT: {resposta}")
+                case 'PROVIDE_SUGGESTIONS':
+                    // IA Generativa usaria userProfile para criar sugestões personalizadas
+                    // Aqui, são exemplos fixos, mas com placeholders para personalização
+                    let suggestionsText = `Com base no que você compartilhou sobre seus interesses em <strong>${userProfile.interests.join(", ") || "diversas áreas"}</strong>, suas habilidades em <strong>${userProfile.skills.join(", ") || "vários talentos"}</strong> e seus valores como <strong>${userProfile.values.join(", ") || "importantes aspectos"}</strong>, aqui estão algumas sugestões que podem te interessar:<br><br>`;
+                    
+                    suggestionsText += `
+                        <ul class="list-disc list-inside space-y-2">
+                            <li><strong>Desenvolvimento de Software/Web:</strong> Se você gosta de tecnologia (${userProfile.interests.includes('Tecnologia') ? 'como mencionou' : 'é uma área em alta'}) e tem habilidades em resolução de problemas (${userProfile.skills.includes('Resolução de problemas') ? 'que você possui' : 'que são cruciais'}), essa área oferece muita criatividade e aprendizado contínuo.</li>
+                            <li><strong>Design Gráfico/UX/UI:</strong> Para quem tem um pé na criatividade (${userProfile.skills.includes('Criatividade') ? 'que é uma de suas forças' : ''}) e se interessa por como as pessoas interagem com produtos digitais. Combina arte com tecnologia.</li>
+                            <li><strong>Marketing Digital:</strong> Se você gosta de comunicação (${userProfile.skills.includes('Comunicação') ? 'como você mencionou' : ''}) e estratégia, e quer ajudar empresas a crescerem no mundo online. Envolve criatividade e análise de dados.</li>
+                            <li><strong>Psicologia/Aconselhamento:</strong> Se você valoriza o impacto social (${userProfile.values.includes('Impacto social positivo') ? 'que é importante para você' : ''}) e tem empatia (${userProfile.skills.includes('Empatia') ? 'como uma de suas habilidades' : ''}), ajudar pessoas a superar desafios pode ser muito recompensador.</li>
+                        </ul>
+                        <br>
+                        Lembre-se, estas são apenas sugestões iniciais para inspirar sua pesquisa! O que você achou? Alguma dessas áreas te chamou mais atenção?
+                    `;
+                    botResponse = suggestionsText;
+                    conversationState = 'FEEDBACK_SUGGESTIONS';
+                    quickReplies = ["Gostei de Desenvolvimento!", "Me interessei por Design.", "Marketing Digital parece legal.", "Psicologia é uma opção.", "Queria outras sugestões.", "Falar mais sobre uma delas."];
+                    break;
 
-    print("\n--- Fim da Simulação ---")
-    print("\nPerfil do Usuário Coletado (Simplificado):")
-    import json
-    print(json.dumps(chatbot.perfil_usuario, indent=2, ensure_ascii=False))
+                case 'FEEDBACK_SUGGESTIONS':
+                    if (userMessage.toLowerCase().includes("outras sugestões") || userMessage.toLowerCase().includes("não gostei")) {
+                        botResponse = `Entendo! Sem problemas. O autoconhecimento é uma jornada. Que tal explorarmos um pouco mais? O que especificamente não te agradou nas sugestões ou que tipo de característica você gostaria de ver mais em uma carreira?`;
+                        conversationState = 'REFINE_PROFILE'; // Novo estado para refinar
+                    } else if (userMessage.toLowerCase().includes("falar mais sobre") || userMessage.toLowerCase().includes("detalhes sobre")) {
+                        let area = userMessage.split("sobre ")[1] || userMessage.split("por ")[1] || "a primeira opção";
+                         if (area.endsWith("!")) area = area.slice(0, -1);
+                        botResponse = `Claro! Vamos falar mais sobre <strong>${area}</strong>. <br><br> [Aqui a IA Gerativa forneceria detalhes específicos sobre ${area}, como dia a dia, mercado de trabalho, formação necessária, e como se conecta com o perfil de ${userName}]. <br><br> O que mais você gostaria de saber sobre ${area} ou podemos explorar outra?`;
+                        quickReplies = [`O que se estuda para ${area}?`, `Como é o mercado para ${area}?`, "Explorar outra sugestão", "Voltar às sugestões"];
+                    } else if (userMessage.toLowerCase().includes("gostei de") || userMessage.toLowerCase().includes("me interessei por")) {
+                         let likedArea = userMessage.split("de ")[1] || userMessage.split("por ")[1] || "uma das opções";
+                         if (likedArea.endsWith("!")) likedArea = likedArea.slice(0, -1);
+                        botResponse = `Que ótimo que você se interessou por <strong>${likedArea}</strong>! 🎉 É um excelente ponto de partida. Recomendo pesquisar mais a fundo: procure cursos, leia artigos, converse com profissionais da área. Quer explorar mais detalhes sobre ${likedArea} ou ver outras opções?`;
+                        quickReplies = [`Mais detalhes sobre ${likedArea}`, "Ver outras opções", "Encerrar por agora"];
+                    }
+                    else {
+                        botResponse = `Entendido! É sempre bom refletir. Se quiser, posso tentar te dar outras sugestões ou podemos focar em alguma área que te despertou um mínimo de curiosidade. O que você prefere?`;
+                        quickReplies = ["Tentar outras sugestões", "Encerrar por agora"];
+                    }
+                    break;
+                
+                case 'REFINE_PROFILE':
+                    // A IA analisaria o feedback para refinar a busca
+                    userProfile.refinements = userProfile.refinements || [];
+                    userProfile.refinements.push(userMessage);
+                    botResponse = `Obrigado pelo feedback, ${userName}. Isso ajuda muito! Vou considerar suas observações: "${userMessage}". Deixe-me pensar em alternativas... 🤔`;
+                    conversationState = 'PROVIDE_SUGGESTIONS'; // Volta para gerar novas sugestões com o perfil refinado
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    return getAIResponse();
+
+                case 'CLOSING':
+                    botResponse = `De nada, ${userName}! Fico feliz em ter ajudado na sua jornada de exploração vocacional. Lembre-se que este é um ponto de partida. O mais importante é continuar pesquisando, experimentando e, acima de tudo, seguindo o que te faz feliz e realizado(a). Boa sorte na sua caminhada! Se precisar de mais alguma coisa, é só chamar! 👋`;
+                    quickReplies = ["Começar de novo"];
+                    conversationState = 'END'; // Estado final para não processar mais
+                    break;
+
+                default:
+                    botResponse = "Desculpe, não entendi muito bem. Poderia reformular?";
+                    break;
+            }
+            
+            showTypingIndicator(false);
+            addMessage('bot', botResponse, true); // Permite HTML nas respostas do bot
+            
+            if (quickReplies.length > 0) {
+                renderQuickReplies(quickReplies);
+            }
+
+            userInput.disabled = false;
+            sendButton.disabled = false;
+            if(conversationState !== 'END') userInput.focus();
+        }
+
+        function renderQuickReplies(replies) {
+            quickRepliesContainer.innerHTML = ''; // Limpa botões anteriores
+            replies.forEach(replyText => {
+                const button = document.createElement('button');
+                button.textContent = replyText;
+                button.classList.add('quick-reply-button', 'bg-blue-500', 'text-white', 'text-sm', 'py-2', 'px-3', 'rounded-lg', 'hover:bg-blue-600', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-400', 'focus:ring-opacity-75', 'shadow');
+                button.onclick = () => {
+                    addMessage('user', replyText);
+                    getAIResponse(replyText);
+                    clearQuickReplies();
+                };
+                quickRepliesContainer.appendChild(button);
+            });
+        }
+
+        function clearQuickReplies() {
+            quickRepliesContainer.innerHTML = '';
+        }
+
+        // Event listener para o botão de enviar
+        sendButton.addEventListener('click', () => {
+            const message = userInput.value.trim();
+            if (message) {
+                addMessage('user', message);
+                getAIResponse(message);
+                userInput.value = '';
+                clearQuickReplies();
+            }
+        });
+
+        // Event listener para a tecla Enter no input
+        userInput.addEventListener('keypress', (event) => {
+            if (event.key === 'Enter') {
+                sendButton.click();
+            }
+        });
+
+        // Iniciar a conversa
+        getAIResponse(); // Chama para a mensagem de boas-vindas inicial
+
+    </script>
+</body>
+</html>
