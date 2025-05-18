@@ -6,7 +6,7 @@
 
 Este projeto apresenta um Chatbot Vocacional Inteligente, desenvolvido para auxiliar pessoas de todas as idades na jornada de autoconhecimento e exploração de carreiras. Utilizando uma abordagem conversacional e interativa, nosso chatbot guia você através de uma série de perguntas reflexivas sobre seus interesses, habilidades e valores, culminando em sugestões de áreas e profissões personalizadas.
 
-[Link para o Chatbot Online - GitHub Pages](https://iurassek.github.io/Meu-chatbot-vocacional/chatbot_vocacional.html)  ---
+[Chatbot Online - GitHub Pages](https://iurassek.github.io/Meu-chatbot-vocacional/chatbot_vocacional.html)  ---
 
 ## 🤔 Por que um Chatbot Vocacional?
 
