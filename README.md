@@ -1,12 +1,12 @@
 # 🚀 Chatbot Vocacional Inteligente 🧭
 
-[![GitHub stars](https://img.shields.io/github/stars/SEU_USUARIO/NOME_DO_REPOSITORIO?style=social)](https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/SEU_USUARIO/NOME_DO_REPOSITORIO?style=social)](https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO/network/members)
+[![GitHub stars](https://img.shields.io/github/stars/iurassek/Meu-chatbot-vocacional?style=social)](https://github.com/iurassek/Meu-chatbot-vocacional/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/iurassek/Meu-chatbot-vocacional?style=social)](https://github.com/iurassek/Meu-chatbot-vocacional/network/members)
 [![Licença](https://img.shields.io/badge/licen%C3%A7a-MIT-blue.svg)](https://opensource.org/licenses/MIT) **Descubra seus talentos, explore suas paixões e encontre o caminho profissional que mais combina com você!**
 
 Este projeto apresenta um Chatbot Vocacional Inteligente, desenvolvido para auxiliar pessoas de todas as idades na jornada de autoconhecimento e exploração de carreiras. Utilizando uma abordagem conversacional e interativa, nosso chatbot guia você através de uma série de perguntas reflexivas sobre seus interesses, habilidades e valores, culminando em sugestões de áreas e profissões personalizadas.
 
-[Link para o Chatbot Online - GitHub Pages](https://SEU_USUARIO.github.io/NOME_DO_REPOSITORIO/chatbot_vocacional.html)  ---
+[Link para o Chatbot Online - GitHub Pages](https://iurassek.github.io/Meu-chatbot-vocacional/chatbot_vocacional.html)  ---
 
 ## 🤔 Por que um Chatbot Vocacional?
 
@@ -43,7 +43,7 @@ Este chatbot foi criado para:
 É muito simples!
 
 1.  **Acesse o Chatbot:** Clique no link abaixo para abrir o chatbot diretamente no seu navegador:
-    * [**Experimente o Chatbot Vocacional Agora!**](https://SEU_USUARIO.github.io/NOME_DO_REPOSITORIO/chatbot_vocacional.html) 2.  **Inicie a Conversa:** Siga as instruções do chatbot e responda às perguntas da forma mais sincera possível.
+    * [**Experimente o Chatbot Vocacional Agora!**](https://iurassek.github.io/Meu-chatbot-vocacional/chatbot_vocacional.html) 2.  **Inicie a Conversa:** Siga as instruções do chatbot e responda às perguntas da forma mais sincera possível.
 3.  **Explore as Sugestões:** Ao final, o chatbot apresentará algumas sugestões de carreira. Use-as como ponto de partida para suas próprias pesquisas!
 
 Não é necessário instalar nada!
@@ -84,20 +84,13 @@ Algumas áreas onde você pode ajudar:
 
 ---
 
-## 📝 Licença (Exemplo)
-
-Este projeto está licenciado sob a Licença MIT. Veja o arquivo [LICENSE.md](LICENSE.md) para mais detalhes.
-*(Se você não adicionou um arquivo de licença, pode remover esta seção ou adicionar um. MIT é uma escolha comum para projetos open-source.)*
-
----
-
-## 🌟 Agradecimentos Especiais (Opcional)
+## 🌟 Agradecimentos Especiais
 
 * A todos que dedicam seu tempo para criar ferramentas de aprendizado e autoconhecimento.
 * À comunidade open-source por compartilhar conhecimento e inspiração.
 
 ---
 
-**Dúvidas, sugestões ou apenas quer bater um papo sobre o projeto?** Abra uma [Issue](https://github.com/SEU_USUARIO/NOME_DO_REPOSITORIO/issues) ou entre em contato!
+**Dúvidas, sugestões ou apenas quer bater um papo sobre o projeto?** Abra uma [Issue](https://github.com/iurassek/Meu-chatbot-vocacional/issues) ou entre em contato!
 
 **Lembre-se:** A jornada vocacional é contínua. Explore, aprenda e, o mais importante, divirta-se descobrindo seus potenciais! ✨
